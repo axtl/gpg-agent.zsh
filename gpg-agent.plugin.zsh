@@ -1,33 +1,31 @@
-local GPG_ENV=${HOME}/.gnupg/gpg-agent.env
+local GPG_DIR="${HOME}/.gnupg"
+local GPG_ENV="${GPG_DIR}/gpg-agent.env"
 
-function _gpg_agent_main () {
-    if [[ ! -f "${GPG_ENV}" ]]; then
-        # start and source the script
-        eval "$(/usr/bin/env gpg-agent \
-                --quiet \
-                --daemon \
-                --enable-ssh-support \
-                --use-standard-socket \
-                --write-env-file "${GPG_ENV}" \
-                2> /dev/null)"
-        chmod 600 "${GPG_ENV}"
-    fi
+local SSH_SOCK="${GPG_DIR}/$(basename ${SSH_AUTH_SOCK})"
+local GPG_SOCK="${GPG_DIR}/$(basename ${GPG_AGENT_INFO} | cut -d : -f1)"
 
-    source "${GPG_ENV}" 2> /dev/null
+if [[ ! ( -f "${GPG_ENV}" && -S "${SSH_SOCK}" && -S "${GPG_SOCK}" ) ]]; then
+    # clear possibly stale things
+    rm  2> /dev/null
+    rm  2> /dev/null
+    pkill -TERM gpg-agent 2> /dev/null
+    pkill -TERM ssh-agent 2> /dev/null
+    # start and source the script
+    eval "$(/usr/bin/env gpg-agent \
+            --quiet \
+            --daemon \
+            --enable-ssh-support \
+            --use-standard-socket \
+            --write-env-file ${GPG_ENV} \
+            2> /dev/null)"
+    chmod 600 "${GPG_ENV}"
+fi
 
-    export GPG_AGENT_INFO
-    export SSH_AUTH_SOCK
-    export SSH_AGENT_PID
+source "${GPG_ENV}" 2> /dev/null
 
-    GPG_TTY=$(tty)
-    export GPG_TTY
-}
+export GPG_AGENT_INFO
+export SSH_AUTH_SOCK
+export SSH_AGENT_PID
 
-function _gpg_agent_reset () {
-    pkill -TERM gpg-agent
-    pkill -TERM ssh-agent
-    rm -f "${GPG_ENV}"
-    _gpg_agent_main
-}
-
-_gpg_agent_main
+GPG_TTY=$(tty)
+export GPG_TTY
