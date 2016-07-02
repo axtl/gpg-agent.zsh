@@ -5,6 +5,7 @@ local SSH_SOCK="${GPG_DIR}/$(basename ${SSH_AUTH_SOCK} 2> /dev/null)"
 local GPG_SOCK="${GPG_DIR}/$(basename ${GPG_AGENT_INFO} | cut -d : -f1 2> /dev/null)"
 
 function _gpg_agent_start() {
+    emulate -L zsh
     if [[ ! ( -f "${GPG_ENV}" && -S "${SSH_SOCK}" && -S "${GPG_SOCK}" ) ]]; then
         _gpg_agent_clean
         # start and source the script
@@ -29,11 +30,13 @@ function _gpg_agent_start() {
 }
 
 function _gpg_agent_reset() {
+    emulate -L zsh
     _gpg_agent_clean
     _gpg_agent_start 
 }
 
 function _gpg_agent_clean () {
+    emulate -L zsh
     # clear possibly stale things
     rm "${SSH_SOCK}" 2> /dev/null
     rm "${GPG_SOCK}" 2> /dev/null
@@ -41,5 +44,6 @@ function _gpg_agent_clean () {
     killall -9 gpg-agent 2> /dev/null
     killall -9 ssh-agent 2> /dev/null
 }
+
 
 _gpg_agent_start 
