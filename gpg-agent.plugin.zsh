@@ -1,8 +1,17 @@
 local GPG_DIR="${HOME}/.gnupg"
 local GPG_ENV="${GPG_DIR}/gpg-agent.env"
+local SSH_SOCK=""
+local GPG_SOCK=""
 
-local SSH_SOCK="${GPG_DIR}/$(basename ${SSH_AUTH_SOCK} 2> /dev/null)"
-local GPG_SOCK="${GPG_DIR}/$(basename ${GPG_AGENT_INFO} | cut -d : -f1 2> /dev/null)"
+if [[ ! -z "${SSH_AUTH_SOCK}" ]]
+then
+    SSH_SOCK="${GPG_DIR}/$(basename ${SSH_AUTH_SOCK})"
+fi
+
+if [[ ! -z "${GPG_AGENT_INFO}" ]]
+then
+    GPG_SOCK="${GPG_DIR}/$(basename ${GPG_AGENT_INFO} | cut -d : -f1)"
+fi
 
 function _gpg_agent_start() {
     emulate -L zsh
