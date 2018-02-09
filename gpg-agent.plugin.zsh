@@ -25,7 +25,7 @@ function _gpg_agent_start() {
                 --use-standard-socket \
                 --write-env-file ${GPG_ENV} \
                 2> /dev/null)"
-        chmod 600 "${GPG_ENV}"
+        [ -f "${GPG_ENV}" ] && chmod 600 "${GPG_ENV}"
     fi
 
     source "${GPG_ENV}" 2> /dev/null
