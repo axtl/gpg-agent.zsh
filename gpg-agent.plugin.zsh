@@ -47,9 +47,9 @@ function _gpg_agent_reset() {
 function _gpg_agent_clean () {
     emulate -L zsh
     # clear possibly stale things
-    rm "${SSH_SOCK}" 2> /dev/null
-    rm "${GPG_SOCK}" 2> /dev/null
-    rm "${GPG_ENV}" 2> /dev/null
+    [ -f "${SSH_SOCK}" ] && rm "${SSH_SOCK}" 2> /dev/null
+    [ -f "${GPG_SOCK}" ] && rm "${GPG_SOCK}" 2> /dev/null
+    [ -f "${GPG_ENV}" ] && rm "${GPG_ENV}" 2> /dev/null
     killall -9 gpg-agent 2> /dev/null
     killall -9 ssh-agent 2> /dev/null
 }
